@@ -1,16 +1,15 @@
 __author__ = 'rhunter'
+import sys
+sys.path.append('../Backend')
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'censio.settings'
-
-import sys
-sys.path.append('../../')
 
 from backend.models import PhoneDriveData, PhoneGroup, PhoneGroupMembership, PhoneId, DriveData
 from survey import models
 import datetime
 from django.core import serializers
 
-model_list = []
+model_list = list()
 
 def main():
     '''
@@ -19,8 +18,9 @@ def main():
     get all phone groups and memberships
     :return:
     '''
-
-    append_dataset(PhoneGroup.objects.all())
+    global model_list
+    phone_group = PhoneGroup.objects.all()
+    append_dataset(phone_group)
     append_dataset(PhoneGroupMembership.objects.all())
     append_dataset(PhoneId.objects.all())
 
@@ -31,8 +31,12 @@ def main():
         serializers.serialize('json', model_list, stream=out)
 
 def append_dataset(query_set):
+    global model_list
     if len(query_set) > 0:
-        model_list.append(query_set)
+	if len(model_list) > 0:
+            model_list += list(query_set)
+	else:
+	    model_list = list(query_set)
 
 
 if __name__ == "__main__":
